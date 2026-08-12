@@ -618,3 +618,41 @@ process.on('unhandledRejection', (error) => {
 process.on('uncaughtException', (error) => {
     console.error("❌ Uncaught exception:", error);
 });
+// =====================================================
+// SEO PAGES
+// =====================================================
+
+// الصفحة الرئيسية
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// صفحة تحميل Shorts
+app.get("/shorts", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "shorts.html"));
+});
+
+// صفحة تحويل MP4
+app.get("/mp4-converter", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "mp4-converter.html"));
+});
+
+// صفحة المدونة الرئيسية
+app.get("/blog", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "blog", "index.html"));
+});
+
+// مقالة المدونة
+app.get("/blog/how-to-download-youtube-shorts", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "blog", "post1.html"));
+});
+
+// sitemap.xml
+app.get("/sitemap.xml", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "sitemap.xml"));
+});
+
+// robots.txt
+app.get("/robots.txt", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "robots.txt"));
+});

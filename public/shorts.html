@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download YouTube Shorts - Free Online Tool</title>
+    <meta name="description" content="Download YouTube Shorts videos easily. Free online tool to save Shorts in MP4 or MP3 format. No registration required.">
+    <meta name="keywords" content="youtube shorts downloader, download shorts, shorts to mp4, shorts to mp3">
+    <link rel="canonical" href="https://yt-downloader.up.railway.app/shorts">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Schema Markup -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "YouTube Shorts Downloader",
+        "description": "Download YouTube Shorts videos in MP4 or MP3 format.",
+        "applicationCategory": "Multimedia",
+        "operatingSystem": "All",
+        "browserRequirements": "Requires JavaScript"
+    }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            YT<span>Downloader</span>
+        </div>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/shorts" class="active">Shorts</a>
+            <a href="/mp4-converter">MP4</a>
+            <a href="/blog">Blog</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Download YouTube <span>Shorts</span></h1>
+            <p class="description">Paste a YouTube Shorts URL and download as MP4 or MP3 instantly.</p>
+
+            <div class="converter">
+                <div class="input-container">
+                    <input type="url" id="videoUrl" placeholder="Paste YouTube Shorts URL here..." autocomplete="off">
+                    <button id="pasteBtn" type="button">Paste</button>
+                </div>
+
+                <div class="controls">
+                    <div class="format-container">
+                        <label>Download format</label>
+                        <div class="format-toggle">
+                            <button class="format-btn active" data-format="mp3">🎵 MP3 Audio</button>
+                            <button class="format-btn" data-format="mp4">🎬 MP4 Video</button>
+                        </div>
+                    </div>
+
+                    <div class="quality-container">
+                        <label for="quality">Quality</label>
+                        <select id="quality">
+                            <option value="128">128 kbps (MP3)</option>
+                            <option value="192" selected>192 kbps (MP3)</option>
+                            <option value="256">256 kbps (MP3)</option>
+                            <option value="320">320 kbps (MP3)</option>
+                            <option value="low">Low (MP4 360p)</option>
+                            <option value="medium">Medium (MP4 720p)</option>
+                            <option value="high">High (MP4 1080p)</option>
+                        </select>
+                    </div>
+
+                    <button id="convertBtn" type="button">Download →</button>
+                </div>
+
+                <div id="status" class="status"></div>
+                <div class="progress-bar" id="progressBar" style="display: none;">
+                    <div class="progress-fill" id="progressFill"></div>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+                <div id="result" class="result" style="display: none;"></div>
+            </div>
+        </section>
+
+        <section class="how">
+            <h2>How to Download YouTube Shorts</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="number">01</div>
+                    <h3>Copy Shorts URL</h3>
+                    <p>Open the YouTube Shorts video and copy the URL from the browser address bar.</p>
+                </div>
+                <div class="step">
+                    <div class="number">02</div>
+                    <h3>Paste & Choose</h3>
+                    <p>Paste the URL and choose MP4 for video or MP3 for audio.</p>
+                </div>
+                <div class="step">
+                    <div class="number">03</div>
+                    <h3>Download</h3>
+                    <p>Click Download and your file will be ready instantly.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="faq">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-item">
+                <h3>What are YouTube Shorts?</h3>
+                <p>YouTube Shorts are short-form videos (60 seconds or less) created by users.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Is it legal to download YouTube Shorts?</h3>
+                <p>Downloading for personal use is generally allowed. Always respect copyright and content creators' rights.</p>
+            </div>
+            <div class="faq-item">
+                <h3>What formats are supported?</h3>
+                <p>You can download as MP4 (video) or MP3 (audio) with multiple quality options.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 YTDownloader</p>
+        <p>Use only media you have permission to download.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

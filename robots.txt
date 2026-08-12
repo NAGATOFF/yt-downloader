@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Sitemap: https://yt-downloader.up.railway.app/sitemap.xml
+Disallow: /temp/
+Disallow: /output/

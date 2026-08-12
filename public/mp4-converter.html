@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube to MP4 Converter - Download Videos Free</title>
+    <meta name="description" content="Convert YouTube videos to MP4 format. Download high-quality videos in 360p, 720p, and 1080p. Free online tool.">
+    <meta name="keywords" content="youtube to mp4, convert youtube to mp4, download youtube videos, mp4 converter">
+    <link rel="canonical" href="https://yt-downloader.up.railway.app/mp4-converter">
+    <link rel="stylesheet" href="style.css">
+    
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "YouTube to MP4 Converter",
+        "description": "Convert YouTube videos to MP4 format easily.",
+        "applicationCategory": "Multimedia",
+        "operatingSystem": "All"
+    }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            YT<span>Downloader</span>
+        </div>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/shorts">Shorts</a>
+            <a href="/mp4-converter" class="active">MP4</a>
+            <a href="/blog">Blog</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>YouTube to <span>MP4 Converter</span></h1>
+            <p class="description">Convert YouTube videos to MP4 in high quality. Choose from 360p, 720p, or 1080p.</p>
+
+            <div class="converter">
+                <div class="input-container">
+                    <input type="url" id="videoUrl" placeholder="Paste YouTube URL here..." autocomplete="off">
+                    <button id="pasteBtn" type="button">Paste</button>
+                </div>
+
+                <div class="controls">
+                    <div class="format-container">
+                        <label>Download format</label>
+                        <div class="format-toggle">
+                            <button class="format-btn" data-format="mp3">🎵 MP3 Audio</button>
+                            <button class="format-btn active" data-format="mp4">🎬 MP4 Video</button>
+                        </div>
+                    </div>
+
+                    <div class="quality-container">
+                        <label for="quality">Video Quality</label>
+                        <select id="quality">
+                            <option value="low">Low (360p)</option>
+                            <option value="medium" selected>Medium (720p)</option>
+                            <option value="high">High (1080p)</option>
+                        </select>
+                    </div>
+
+                    <button id="convertBtn" type="button">Download →</button>
+                </div>
+
+                <div id="status" class="status"></div>
+                <div class="progress-bar" id="progressBar" style="display: none;">
+                    <div class="progress-fill" id="progressFill"></div>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+                <div id="result" class="result" style="display: none;"></div>
+            </div>
+        </section>
+
+        <section class="how">
+            <h2>How to Convert YouTube to MP4</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="number">01</div>
+                    <h3>Copy Video URL</h3>
+                    <p>Copy the URL of the YouTube video you want to download.</p>
+                </div>
+                <div class="step">
+                    <div class="number">02</div>
+                    <h3>Choose Quality</h3>
+                    <p>Select your preferred resolution: 360p, 720p, or 1080p.</p>
+                </div>
+                <div class="step">
+                    <div class="number">03</div>
+                    <h3>Download</h3>
+                    <p>Click Download and your MP4 video will be ready.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 YTDownloader</p>
+        <p>Use only media you have permission to download.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
