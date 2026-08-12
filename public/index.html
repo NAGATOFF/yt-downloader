@@ -34,6 +34,21 @@
             Paste a YouTube URL and download as MP3 or MP4 with your preferred quality.
         </p>
 
+        <!-- ===================================================== -->
+        <!-- ✅ إعلان Google AdSense - أعلى المحول -->
+        <!-- ===================================================== -->
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-5676280439521704"
+                 data-ad-slot="XXXXXXXXXX"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
         <div class="converter">
             <div class="input-container">
                 <input
@@ -46,7 +61,6 @@
             </div>
 
             <div class="controls">
-                <!-- نوع التحميل -->
                 <div class="format-container">
                     <label>Download format</label>
                     <div class="format-toggle">
@@ -59,7 +73,6 @@
                     </div>
                 </div>
 
-                <!-- جودة الصوت/الفيديو -->
                 <div class="quality-container">
                     <label for="quality">Quality</label>
                     <select id="quality">
@@ -68,7 +81,7 @@
                         <option value="256">256 kbps (MP3)</option>
                         <option value="320">320 kbps (MP3)</option>
                         <option value="low">Low (MP4 360p)</option>
-                        <option value="medium" selected>Medium (MP4 720p)</option>
+                        <option value="medium">Medium (MP4 720p)</option>
                         <option value="high">High (MP4 1080p)</option>
                     </select>
                 </div>
@@ -79,8 +92,28 @@
             </div>
 
             <div id="status" class="status"></div>
+            <div class="progress-bar" id="progressBar" style="display: none;">
+                <div class="progress-fill" id="progressFill"></div>
+                <div class="progress-text" id="progressText">0%</div>
+            </div>
             <div id="result" class="result" style="display: none;"></div>
         </div>
+
+        <!-- ===================================================== -->
+        <!-- ✅ إعلان Google AdSense - أسفل المحول -->
+        <!-- ===================================================== -->
+        <div class="ad-container ad-bottom">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-5676280439521704"
+                 data-ad-slot="XXXXXXXXXX"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
     </section>
 
     <section id="how" class="how">
