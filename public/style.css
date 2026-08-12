@@ -917,3 +917,80 @@ nav a.active {
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     box-shadow: 0 4px 20px rgba(108, 60, 225, 0.3);
 }
+
+/* =====================================================
+   📢 ADS STYLING
+   ===================================================== */
+
+.ad-container {
+    margin: 20px auto;
+    padding: 16px;
+    max-width: 728px;
+    background: var(--bg-card);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    text-align: center;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.ad-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(108, 60, 225, 0.03), rgba(244, 63, 94, 0.03));
+    pointer-events: none;
+}
+
+.ad-container:hover {
+    border-color: rgba(108, 60, 225, 0.15);
+    box-shadow: var(--shadow-glow);
+}
+
+.ad-container .ad-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    font-weight: 600;
+    opacity: 0.5;
+}
+
+.ad-container.ad-bottom {
+    margin-top: 30px;
+}
+
+/* تنسيق الإعلانات الداخلية */
+.ad-container ins.adsbygoogle {
+    width: 100%;
+    min-height: 90px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .ad-container {
+        min-height: 70px;
+        padding: 12px;
+        margin: 16px auto;
+    }
+    
+    .ad-container ins.adsbygoogle {
+        min-height: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .ad-container {
+        min-height: 60px;
+        padding: 8px;
+        margin: 12px auto;
+    }
+}
