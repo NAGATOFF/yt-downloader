@@ -106,7 +106,7 @@ function isFFmpegInstalled() {
 }
 
 // =====================================================
-// GET VIDEO INFO
+// GET VIDEO INFO - WITH DENO SUPPORT
 // =====================================================
 
 async function getYouTubeInfo(youtubeUrl) {
@@ -114,7 +114,10 @@ async function getYouTubeInfo(youtubeUrl) {
         console.log("📊 Fetching video info...");
         
         const cleanUrl = cleanYouTubeUrl(youtubeUrl);
-        const cmd = `yt-dlp --no-check-certificates -j "${cleanUrl}"`;
+        // ✅ إضافة --js-runtimes deno
+        const cmd = `yt-dlp --js-runtimes deno --no-check-certificates -j "${cleanUrl}"`;
+        
+        console.log("📌 Command:", cmd);
         
         const { stdout, stderr } = await exec(cmd, { 
             maxBuffer: 10 * 1024 * 1024,
@@ -146,7 +149,7 @@ async function getYouTubeInfo(youtubeUrl) {
 }
 
 // =====================================================
-// DOWNLOAD TO MP3
+// DOWNLOAD TO MP3 - WITH DENO SUPPORT
 // =====================================================
 
 function downloadYouTubeToMp3(youtubeUrl, quality = 192) {
@@ -166,7 +169,8 @@ function downloadYouTubeToMp3(youtubeUrl, quality = 192) {
             const { PassThrough } = require('stream');
             const outputStream = new PassThrough();
 
-            const cmd = `yt-dlp --no-check-certificates --ffmpeg-location "${FFMPEG}" -f bestaudio --extract-audio --audio-format mp3 --audio-quality ${quality}k --no-playlist -o - "${cleanUrl}"`;
+            // ✅ إضافة --js-runtimes deno
+            const cmd = `yt-dlp --js-runtimes deno --no-check-certificates --ffmpeg-location "${FFMPEG}" -f bestaudio --extract-audio --audio-format mp3 --audio-quality ${quality}k --no-playlist -o - "${cleanUrl}"`;
             
             console.log("📌 Command:", cmd);
             
@@ -227,7 +231,7 @@ function downloadYouTubeToMp3(youtubeUrl, quality = 192) {
 }
 
 // =====================================================
-// DOWNLOAD TO MP4
+// DOWNLOAD TO MP4 - WITH DENO SUPPORT
 // =====================================================
 
 function downloadYouTubeToMp4(youtubeUrl, quality = 'medium') {
@@ -266,7 +270,8 @@ function downloadYouTubeToMp4(youtubeUrl, quality = 'medium') {
             const tempId = Date.now() + '-' + Math.random().toString(36).substring(2, 8);
             const tempFile = path.join(TEMP_DIR, `${tempId}.mp4`);
 
-            const cmd = `yt-dlp --no-check-certificates --ffmpeg-location "${FFMPEG}" -f "${formatOption}" --merge-output-format mp4 --no-playlist -o "${tempFile}" "${cleanUrl}"`;
+            // ✅ إضافة --js-runtimes deno
+            const cmd = `yt-dlp --js-runtimes deno --no-check-certificates --ffmpeg-location "${FFMPEG}" -f "${formatOption}" --merge-output-format mp4 --no-playlist -o "${tempFile}" "${cleanUrl}"`;
             
             console.log("📌 Command:", cmd);
             
@@ -275,13 +280,16 @@ function downloadYouTubeToMp4(youtubeUrl, quality = 'medium') {
                 stdio: ['ignore', 'pipe', 'pipe']
             });
 
+            let downloadPercent = 0;
+
             process.stderr.on('data', (data) => {
                 const text = data.toString();
                 
                 if (text.includes('[download]') && text.includes('%')) {
                     const match = text.match(/(\d+\.\d+)%/);
                     if (match) {
-                        console.log(`📥 Download: ${match[1]}%`);
+                        downloadPercent = parseFloat(match[1]);
+                        console.log(`📥 Download: ${downloadPercent}%`);
                     }
                 }
                 
@@ -592,6 +600,7 @@ app.listen(PORT, HOST, async () => {
         console.warn("⚠️ yt-dlp: Not found ❌");
     }
     
+    console.log("✅ Deno: Ready ✅");
     console.log("=".repeat(50));
     console.log("Press Ctrl+C to stop\n");
 });
