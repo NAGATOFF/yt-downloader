@@ -15,28 +15,50 @@ const HOST = '0.0.0.0';
 
 const OUTPUT_DIR = path.join(__dirname, "output");
 const TEMP_DIR = path.join(__dirname, "temp");
+const THUMBNAIL_DIR = path.join(__dirname, "thumbnails");
 
 fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 fs.mkdirSync(TEMP_DIR, { recursive: true });
+fs.mkdirSync(THUMBNAIL_DIR, { recursive: true });
 
 // =====================================================
-// FFMPEG PATH
+// FFMPEG PATH - AUTO DETECT
 // =====================================================
 
-const FFMPEG_PATH = 'C:\\Users\\NAGATO\\AppData\\Local\\Microsoft\\WinGet\\Links\\ffmpeg.exe';
-
-function getFFmpegPath() {
+function findFFmpeg() {
+    // مسارات شائعة في Railway/Ubuntu
+    const paths = [
+        '/usr/bin/ffmpeg',
+        '/usr/local/bin/ffmpeg',
+        '/opt/bin/ffmpeg',
+        '/app/bin/ffmpeg',
+        'ffmpeg'
+    ];
+    
+    for (const p of paths) {
+        try {
+            require('child_process').execSync(`"${p}" -version`, { stdio: 'ignore' });
+            console.log(`✅ FFmpeg found at: ${p}`);
+            return p;
+        } catch {}
+    }
+    
+    // محاولة with which/where
     try {
-        const result = require('child_process').execSync('where ffmpeg', { encoding: 'utf8' });
-        const paths = result.trim().split('\n');
-        if (paths.length > 0 && paths[0].trim()) {
-            return paths[0].trim();
+        const result = require('child_process').execSync('which ffmpeg || where ffmpeg', { encoding: 'utf8' });
+        const p = result.trim().split('\n')[0];
+        if (p) {
+            console.log(`✅ FFmpeg found at: ${p}`);
+            return p;
         }
     } catch {}
-    return FFMPEG_PATH;
+    
+    console.warn('⚠️ FFmpeg not found, using default');
+    return 'ffmpeg';
 }
 
-const FFMPEG = getFFmpegPath();
+const FFMPEG = findFFmpeg();
+console.log(`📌 FFmpeg path: ${FFMPEG}`);
 
 // =====================================================
 // MIDDLEWARE
@@ -64,7 +86,6 @@ function cleanYouTubeUrl(url) {
                 return `https://www.youtube.com/watch?v=${videoId}`;
             }
         }
-        
         return url;
     } catch {
         return url;
@@ -85,7 +106,7 @@ function isFFmpegInstalled() {
 }
 
 // =====================================================
-// GET VIDEO INFO USING YT-DLP
+// GET VIDEO INFO
 // =====================================================
 
 async function getYouTubeInfo(youtubeUrl) {
@@ -93,8 +114,7 @@ async function getYouTubeInfo(youtubeUrl) {
         console.log("📊 Fetching video info...");
         
         const cleanUrl = cleanYouTubeUrl(youtubeUrl);
-        
-        const cmd = `yt-dlp -j "${cleanUrl}"`;
+        const cmd = `yt-dlp --no-check-certificates -j "${cleanUrl}"`;
         
         const { stdout, stderr } = await exec(cmd, { 
             maxBuffer: 10 * 1024 * 1024,
@@ -107,9 +127,15 @@ async function getYouTubeInfo(youtubeUrl) {
 
         const info = JSON.parse(stdout);
         
+        let thumbnail = info.thumbnail || "";
+        if (info.thumbnails && info.thumbnails.length > 0) {
+            const bestThumb = info.thumbnails.reduce((a, b) => (a.width || 0) > (b.width || 0) ? a : b);
+            thumbnail = bestThumb.url || thumbnail;
+        }
+        
         return {
             title: info.title || "Unknown Title",
-            thumbnail: info.thumbnail || "",
+            thumbnail: thumbnail,
             duration: info.duration || 0,
             uploader: info.uploader || "Unknown Uploader"
         };
@@ -120,28 +146,27 @@ async function getYouTubeInfo(youtubeUrl) {
 }
 
 // =====================================================
-// DOWNLOAD YOUTUBE TO MP3 - STREAMING
+// DOWNLOAD TO MP3
 // =====================================================
 
 function downloadYouTubeToMp3(youtubeUrl, quality = 192) {
     return new Promise((resolve, reject) => {
         try {
-            console.log("🎵 Starting YouTube to MP3 download...");
+            console.log("🎵 Starting MP3 download...");
             
             const cleanUrl = cleanYouTubeUrl(youtubeUrl);
             console.log("📌 URL:", cleanUrl);
             console.log("📌 Quality:", quality + " kbps");
 
             if (!isFFmpegInstalled()) {
-                reject(new Error(`FFmpeg not found at: ${FFMPEG}`));
+                reject(new Error(`FFmpeg not found`));
                 return;
             }
 
             const { PassThrough } = require('stream');
             const outputStream = new PassThrough();
 
-            // ✅ استخدام yt-dlp مع -o - للتدفق المباشر
-            const cmd = `yt-dlp --ffmpeg-location "${FFMPEG}" -f bestaudio --extract-audio --audio-format mp3 --audio-quality ${quality}k --no-playlist -o - "${cleanUrl}"`;
+            const cmd = `yt-dlp --no-check-certificates --ffmpeg-location "${FFMPEG}" -f bestaudio --extract-audio --audio-format mp3 --audio-quality ${quality}k --no-playlist -o - "${cleanUrl}"`;
             
             console.log("📌 Command:", cmd);
             
@@ -202,27 +227,26 @@ function downloadYouTubeToMp3(youtubeUrl, quality = 192) {
 }
 
 // =====================================================
-// DOWNLOAD YOUTUBE TO MP4 - USING TEMP FILE + STREAM
+// DOWNLOAD TO MP4
 // =====================================================
 
 function downloadYouTubeToMp4(youtubeUrl, quality = 'medium') {
     return new Promise((resolve, reject) => {
         try {
-            console.log("🎬 Starting YouTube to MP4 download...");
+            console.log("🎬 Starting MP4 download...");
             
             const cleanUrl = cleanYouTubeUrl(youtubeUrl);
             console.log("📌 URL:", cleanUrl);
             console.log("📌 Quality:", quality);
 
             if (!isFFmpegInstalled()) {
-                reject(new Error(`FFmpeg not found at: ${FFMPEG}`));
+                reject(new Error(`FFmpeg not found`));
                 return;
             }
 
             const { PassThrough } = require('stream');
             const outputStream = new PassThrough();
 
-            // ✅ خيارات الجودة
             let formatOption = '';
             
             switch(quality) {
@@ -239,12 +263,10 @@ function downloadYouTubeToMp4(youtubeUrl, quality = 'medium') {
                     formatOption = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]';
             }
 
-            // ✅ إنشاء ملف مؤقت
             const tempId = Date.now() + '-' + Math.random().toString(36).substring(2, 8);
             const tempFile = path.join(TEMP_DIR, `${tempId}.mp4`);
 
-            // ✅ تحميل الفيديو كملف مؤقت
-            const cmd = `yt-dlp --ffmpeg-location "${FFMPEG}" -f "${formatOption}" --merge-output-format mp4 --no-playlist -o "${tempFile}" "${cleanUrl}"`;
+            const cmd = `yt-dlp --no-check-certificates --ffmpeg-location "${FFMPEG}" -f "${formatOption}" --merge-output-format mp4 --no-playlist -o "${tempFile}" "${cleanUrl}"`;
             
             console.log("📌 Command:", cmd);
             
@@ -253,16 +275,13 @@ function downloadYouTubeToMp4(youtubeUrl, quality = 'medium') {
                 stdio: ['ignore', 'pipe', 'pipe']
             });
 
-            let downloadPercent = 0;
-
             process.stderr.on('data', (data) => {
                 const text = data.toString();
                 
                 if (text.includes('[download]') && text.includes('%')) {
                     const match = text.match(/(\d+\.\d+)%/);
                     if (match) {
-                        downloadPercent = parseFloat(match[1]);
-                        console.log(`📥 Download: ${downloadPercent}%`);
+                        console.log(`📥 Download: ${match[1]}%`);
                     }
                 }
                 
@@ -272,59 +291,53 @@ function downloadYouTubeToMp4(youtubeUrl, quality = 'medium') {
             });
 
             process.on('close', async (code) => {
-                if (code === 0) {
-                    console.log('✅ MP4 downloaded successfully');
+                if (code !== 0) {
+                    reject(new Error(`yt-dlp failed with code ${code}`));
+                    return;
+                }
+
+                if (!fs.existsSync(tempFile)) {
+                    reject(new Error('MP4 file not created'));
+                    return;
+                }
+
+                const fileSize = fs.statSync(tempFile).size;
+                console.log(`📊 File size: ${(fileSize / (1024 * 1024)).toFixed(2)} MB`);
+                
+                const fileStream = fs.createReadStream(tempFile);
+                
+                let bytesSent = 0;
+                let lastLogTime = Date.now();
+
+                fileStream.on('data', (chunk) => {
+                    bytesSent += chunk.length;
+                    const now = Date.now();
                     
-                    // ✅ التحقق من وجود الملف
-                    if (!fs.existsSync(tempFile)) {
-                        reject(new Error('MP4 file not created'));
-                        return;
+                    if (now - lastLogTime > 2000) {
+                        const mb = (bytesSent / (1024 * 1024)).toFixed(2);
+                        console.log(`📤 Streaming: ${mb} MB sent`);
+                        lastLogTime = now;
                     }
                     
-                    // ✅ إرسال الملف للمستخدم
-                    const fileSize = fs.statSync(tempFile).size;
-                    console.log(`📊 File size: ${(fileSize / (1024 * 1024)).toFixed(2)} MB`);
+                    outputStream.push(chunk);
+                });
+
+                fileStream.on('end', () => {
+                    console.log('✅ File streaming complete');
+                    outputStream.push(null);
                     
-                    // ✅ بدء التدفق
-                    const fileStream = fs.createReadStream(tempFile);
+                    fs.unlink(tempFile, (err) => {
+                        if (err) console.error('Error deleting temp file:', err);
+                        else console.log('🗑️ Temp file deleted');
+                    });
                     
-                    let bytesSent = 0;
-                    let lastLogTime = Date.now();
+                    resolve(outputStream);
+                });
 
-                    fileStream.on('data', (chunk) => {
-                        bytesSent += chunk.length;
-                        const now = Date.now();
-                        
-                        if (now - lastLogTime > 2000) {
-                            const mb = (bytesSent / (1024 * 1024)).toFixed(2);
-                            console.log(`📤 Streaming: ${mb} MB sent`);
-                            lastLogTime = now;
-                        }
-                        
-                        outputStream.push(chunk);
-                    });
-
-                    fileStream.on('end', () => {
-                        console.log('✅ File streaming complete');
-                        outputStream.push(null);
-                        
-                        // ✅ حذف الملف المؤقت
-                        fs.unlink(tempFile, (err) => {
-                            if (err) console.error('Error deleting temp file:', err);
-                            else console.log('🗑️ Temp file deleted');
-                        });
-                        
-                        resolve(outputStream);
-                    });
-
-                    fileStream.on('error', (error) => {
-                        console.error('❌ File stream error:', error.message);
-                        reject(error);
-                    });
-
-                } else {
-                    reject(new Error(`yt-dlp failed with code ${code}`));
-                }
+                fileStream.on('error', (error) => {
+                    console.error('❌ File stream error:', error.message);
+                    reject(error);
+                });
             });
 
             process.on('error', (error) => {
@@ -395,7 +408,7 @@ app.post("/convert", async (req, res) => {
             return res.status(500).json({
                 success: false,
                 error: "FFmpeg is not installed or not found in PATH",
-                details: `Looking for FFmpeg at: ${FFMPEG}`
+                ffmpegPath: FFMPEG
             });
         }
 
@@ -503,21 +516,27 @@ app.get("/download", async (req, res) => {
 });
 
 // =====================================================
-// CLEANUP OLD TEMP FILES (Every hour)
+// CLEANUP OLD TEMP FILES
 // =====================================================
 
 function cleanTempFiles() {
     try {
-        const files = fs.readdirSync(TEMP_DIR);
+        const dirs = [TEMP_DIR, THUMBNAIL_DIR];
         const now = Date.now();
-        const maxAge = 60 * 60 * 1000; // 1 hour
+        const maxAge = 60 * 60 * 1000;
         
-        for (const file of files) {
-            const filePath = path.join(TEMP_DIR, file);
-            const stats = fs.statSync(filePath);
-            if (now - stats.mtimeMs > maxAge) {
-                fs.unlinkSync(filePath);
-                console.log(`🗑️ Deleted old temp file: ${file}`);
+        for (const dir of dirs) {
+            if (!fs.existsSync(dir)) continue;
+            const files = fs.readdirSync(dir);
+            for (const file of files) {
+                const filePath = path.join(dir, file);
+                try {
+                    const stats = fs.statSync(filePath);
+                    if (now - stats.mtimeMs > maxAge) {
+                        fs.unlinkSync(filePath);
+                        console.log(`🗑️ Deleted old file: ${file}`);
+                    }
+                } catch {}
             }
         }
     } catch (error) {
@@ -547,7 +566,7 @@ app.use((req, res) => {
 
 app.listen(PORT, HOST, async () => {
     console.log("\n" + "=".repeat(50));
-    console.log("🎵  YOUTUBE DOWNLOADER (MP3 & MP4)  🎵");
+    console.log("🎵  YOUTUBE DOWNLOADER  🎵");
     console.log("=".repeat(50));
     console.log(`✅ Server running on http://${HOST}:${PORT}`);
     
@@ -556,7 +575,7 @@ app.listen(PORT, HOST, async () => {
     for (const name of Object.keys(nets)) {
         for (const net of nets[name]) {
             if (net.family === 'IPv4' && !net.internal) {
-                console.log(`✅ Network access: http://${net.address}:${PORT}`);
+                console.log(`✅ Network: http://${net.address}:${PORT}`);
                 break;
             }
         }
@@ -571,22 +590,14 @@ app.listen(PORT, HOST, async () => {
         console.log("✅ yt-dlp: Ready ✅");
     } catch {
         console.warn("⚠️ yt-dlp: Not found ❌");
-        console.warn("⚠️ Please install: pip install yt-dlp");
     }
     
-    console.log("✅ Streaming Mode: Active");
-    console.log("✅ MP4: Downloaded to temp then streamed");
-    console.log("✅ Temp files auto-cleaned every hour");
     console.log("=".repeat(50));
     console.log("Press Ctrl+C to stop\n");
 });
 
-// =====================================================
-// PROCESS CLEANUP
-// =====================================================
-
 process.on('SIGINT', () => {
-    console.log("\n🛑 Shutting down gracefully...");
+    console.log("\n🛑 Shutting down...");
     cleanTempFiles();
     process.exit(0);
 });
